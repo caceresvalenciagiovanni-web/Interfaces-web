@@ -1,76 +1,33 @@
 <?php
-require '../conexion.php';
 session_start();
+
+// 1. CORRECCIÓN: Usar la configuración moderna
+require '../config/database.php';
+
+use App\Models\Proveedor;
 
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
     header("Location: ../index.php");
     exit;
 }
 
-// Obtener proveedores
-$proveedores = $pdo->query("SELECT * FROM Proveedor")->fetchAll(PDO::FETCH_ASSOC);
+// 2. CORRECCIÓN: Usar Eloquent limpio (sin fetchAll)
+$proveedores = Proveedor::all();
 
-include 'header.php';
+// include 'header.php'; // (Descomenta si usas header)
 ?>
 
-<!-- ======================  CSS MODERNO  ====================== -->
 <style>
 body { background:#f5f6fa; font-family: 'Segoe UI', sans-serif; }
-
-.add-container {
-    margin-left: 260px;
-    padding: 30px;
-    animation: fade .3s ease-in-out;
-}
-
-@keyframes fade {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-h2 {
-    font-weight: 700;
-    color: #343a40;
-    margin-bottom: 20px;
-}
-
-/* Card moderna */
-.form-card {
-    background: white;
-    padding: 25px;
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    max-width: 700px;
-}
-
-/* Inputs */
-.form-control {
-    border-radius: 10px;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ced4da;
-}
-
-.form-control:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 6px rgba(0,123,255,0.3);
-}
-
-/* Botón guardar moderno */
-.btn-success {
-    background: #28a745;
-    border-radius: 10px;
-    padding: 12px 18px;
-    border: none;
-    transition: .2s;
-}
-.btn-success:hover {
-    background: #218838;
-    transform: translateY(-2px);
-}
+.add-container { margin-left: 260px; padding: 30px; animation: fade .3s ease-in-out; }
+@keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+h2 { font-weight: 700; color: #343a40; margin-bottom: 20px; }
+.form-card { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); max-width: 700px; }
+.form-control { border-radius: 10px; padding: 10px; margin-bottom: 15px; border: 1px solid #ced4da; }
+.form-control:focus { border-color: #007bff; box-shadow: 0 0 6px rgba(0,123,255,0.3); }
+.btn-success { background: #28a745; border-radius: 10px; padding: 12px 18px; border: none; transition: .2s; }
+.btn-success:hover { background: #218838; transform: translateY(-2px); }
 </style>
-<!-- =========================================================== -->
-
 <div class="add-container">
     <h2>Agregar Producto</h2>
 
@@ -121,8 +78,8 @@ h2 {
             <label><strong>Proveedor:</strong></label>
             <select name="idProveedor" required class="form-control">
                 <?php foreach ($proveedores as $prov): ?>
-                    <option value="<?= $prov['idProveedor'] ?>">
-                        <?= $prov['nombre'] ?>
+                    <option value="<?= $prov->idProveedor ?>">
+                        <?= $prov->nombre ?>
                     </option>
                 <?php endforeach ?>
             </select>
@@ -132,4 +89,6 @@ h2 {
     </div>
 </div>
 
-<?php include 'footer.php'; ?>
+<?php 
+// include 'footer.php'; 
+?>

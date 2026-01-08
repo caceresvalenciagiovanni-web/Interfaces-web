@@ -1,25 +1,23 @@
 <?php
-require '../conexion.php';
+session_start();
+require '../config/database.php';
 
-$stmt = $pdo->prepare("
-    INSERT INTO Producto
-    (nombre, descripcion, costo, precio, stock, genero, etapaEdad, tipoProducto, material, categoria, idProveedor)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-");
+use App\Controllers\ProductoController;
 
-$stmt->execute([
-    $_POST['nombre'],
-    $_POST['descripcion'],
-    $_POST['costo'],
-    $_POST['precio'],
-    $_POST['stock'],
-    $_POST['genero'],
-    $_POST['etapaEdad'],
-    $_POST['tipoProducto'],
-    $_POST['material'],
-    $_POST['categoria'],
-    $_POST['idProveedor']
-]);
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
+    header("Location: ../index.php");
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $controller = new ProductoController();
+    
+    // El método store() espera un array, $_POST es perfecto
+    $resultado = $controller->store($_POST);
+
+    // Podrías agregar lógica para mostrar errores, 
+    // pero por ahora redirigimos al listado.
+}
 
 header("Location: productos.php");
 exit;
