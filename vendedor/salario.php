@@ -1,7 +1,12 @@
 <?php
 session_start();
-require "../conexion.php";
+// 1. Cargamos la configuración moderna (Eloquent)
+require "../config/database.php";
 
+use App\Models\RegistroSalario;
+use App\Models\Venta;
+
+// Validación de seguridad
 if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "Vendedor") {
     header("Location: ../index.php");
     exit;
@@ -10,25 +15,41 @@ if (!isset($_SESSION["role"]) || $_SESSION["role"] !== "Vendedor") {
 $idVendedor = $_SESSION["idPersona"];
 $hoy = date("Y-m-d");
 
-$stmt = $pdo->prepare("SELECT salarioBase, comisiones, totalDia
-                       FROM RegistroSalario
-                       WHERE idVendedor = ? AND fecha = ?");
-$stmt->execute([$idVendedor, $hoy]);
-$salario = $stmt->fetch(PDO::FETCH_ASSOC);
+// ==========================================
+// CONSULTAS CON ORM (Sin SQL manual)
+// ==========================================
 
-// Obtener número de ventas del día
-$stmt2 = $pdo->prepare("SELECT COUNT(*) AS ventas FROM Venta 
-                        WHERE idEmpleado = ? AND fecha = ?");
-$stmt2->execute([$idVendedor, $hoy]);
-$ventas = $stmt2->fetchColumn();
+// A. Obtener Salario del día
+$salario = RegistroSalario::where('idVendedor', $idVendedor)
+                          ->where('fecha', $hoy)
+                          ->first();
 
-// Artículos vendidos
-$stmt3 = $pdo->prepare("SELECT COALESCE(SUM(cantidad),0) AS totalArticulos
-                        FROM DetalleVenta dv
-                        JOIN Venta v ON dv.idVenta = v.idVenta
-                        WHERE v.idEmpleado = ? AND v.fecha = ?");
-$stmt3->execute([$idVendedor, $hoy]);
-$articulos = $stmt3->fetchColumn();
+// Si por alguna razón no existe registro (raro), inicializamos valores en 0 visualmente
+if (!$salario) {
+    // Creamos un objeto "falso" o array simple para no romper el HTML abajo
+    $salario = (object) ['salarioBase' => 0, 'comisiones' => 0, 'totalDia' => 0];
+} else {
+    // Calculamos totalDia si no viene de la BD
+    if (!isset($salario->totalDia)) {
+        $salario->totalDia = $salario->salarioBase + $salario->comisiones;
+    }
+}
+
+// B. Obtener Ventas y Artículos del día
+// Traemos todas las ventas de hoy de este empleado
+$ventasHoy = Venta::where('idEmpleado', $idVendedor)
+                  ->where('fecha', $hoy)
+                  ->get();
+
+$cantidadVentas = $ventasHoy->count();
+
+// C. Calcular Total de Artículos Vendidos
+// Recorremos las ventas y sumamos la cantidad de sus detalles
+$articulosVendidos = 0;
+foreach ($ventasHoy as $venta) {
+    // Usamos la relación 'detalles' que definimos en el modelo Venta
+    $articulosVendidos += $venta->detalles()->sum('cantidad');
+}
 ?>
 
 <!DOCTYPE html>
@@ -69,14 +90,14 @@ body { background:#f5f6fa; }
     <div class="card shadow p-4" style="max-width:500px;">
         <h4 class="mb-3">Salario del <?= $hoy ?></h4>
 
-        <p><strong>Salario Base:</strong> $<?= $salario["salarioBase"] ?></p>
-        <p><strong>Comisiones:</strong> $<?= $salario["comisiones"] ?></p>
-        <p class="fs-4"><strong>Total del Día:</strong> $<?= $salario["totalDia"] ?></p>
+        <p><strong>Salario Base:</strong> $<?= number_format($salario->salarioBase, 2) ?></p>
+        <p><strong>Comisiones:</strong> $<?= number_format($salario->comisiones, 2) ?></p>
+        <p class="fs-4"><strong>Total del Día:</strong> $<?= number_format($salario->totalDia, 2) ?></p>
 
         <hr>
 
-        <p><strong>Ventas realizadas:</strong> <?= $ventas ?></p>
-        <p><strong>Artículos vendidos:</strong> <?= $articulos ?></p>
+        <p><strong>Ventas realizadas:</strong> <?= $cantidadVentas ?></p>
+        <p><strong>Artículos vendidos:</strong> <?= $articulosVendidos ?></p>
     </div>
 </div>
 
