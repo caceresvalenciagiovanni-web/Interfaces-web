@@ -45,7 +45,7 @@ Se eliminaron las consultas SQL manuales (`SELECT`, `INSERT`, `JOIN`) y se reemp
 
 La base de datos relacional está diseñada para mantener la integridad referencial entre las operaciones comerciales.
 
-![Diagrama ER del Proyecto](imagen_diagrama.png)
+![Diagrama ER del Proyecto](imagen_diagrama.jpeg)
 *(Nota: Debes subir una imagen llamada `imagen_diagrama.png` o similar a tu repo y cambiar esta ruta)*
 
 **Entidades Principales:**
