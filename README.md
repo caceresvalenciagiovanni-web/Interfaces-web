@@ -48,10 +48,10 @@ La base de datos relacional está diseñada para mantener la integridad referenc
 ![Diagrama ER del Proyecto](imagen_diagrama.jpeg)
 ![Diagrama ER del Proyecto](imagen_diagrama1.jpeg)
 ![Diagrama Crow´s Foot del Proyecto](imagen_EER.jpeg)
-(tienda.png)
-(tienda2.png)
-(tienda3.png)
-(tienda4.png)
+![](tienda.png)
+![](tienda2.png)
+![](tienda3.png)
+![](tienda4.png)
 *(Nota: Debes subir una imagen llamada `imagen_diagrama.png` o similar a tu repo y cambiar esta ruta)*
 
 **Entidades Principales:**
