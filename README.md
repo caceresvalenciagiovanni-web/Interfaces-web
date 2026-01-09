@@ -10,7 +10,7 @@ Puedes acceder al proyecto funcional aquí:
 👉 **[http://www.proyectobdluis.rf.gd/](http://www.proyectobdluis.rf.gd/)**
 
 > **Credenciales de prueba:**
-> * **Usuario: admin
+> * **Usuario: admin o vendedor1
 > * **Contraseña: temp
 
 ---
